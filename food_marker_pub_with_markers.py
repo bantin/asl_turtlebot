@@ -8,6 +8,7 @@ from geometry_msgs.msg import Twist, PoseArray, Pose2D
 from asl_turtlebot.msg import DetectedObject, DetectedObjectList
 import tf
 import numpy as np
+from utils import wrapToPi
 
 # max distance to detect fun_stuff object
 MAX_DETECT_DIST = 1
@@ -81,15 +82,21 @@ class FoodMarkerPublisher():
             print("Time to go home")
             self.go_home_pub.publish("Time to go home")
             
-    
     def food_to_world_frame(self, msg):
+        theta_left = msg.thetaleft
+        theta_right = msg.thetaright
+        theta_avg = np.mean((theta_left, theta_right))
+        theta_avg_wrapped = wrapToPi(theta_avg)
+
         dist = np.max(msg.distance - 0.1, 0)
         robo_x, robo_y, robo_theta = self.robot_pose()
-        print(self.robot_pose())
-        food_x = robo_x + dist * np.cos(robo_theta)
-        food_y = robo_y + dist * np.sin(robo_theta)
-        return (food_x, food_y, robo_theta, msg.distance)
-        
+        food_x = robo_x + dist * np.cos(robo_theta + theta_avg_wrapped)
+        food_y = robo_y + dist * np.sin(robo_theta + theta_avg_wrapped)
+
+        rospy.loginfo("Theta_avg_wrapped (should be close to zero)")
+        rospy.loginfo(theta_avg_wrapped)
+
+        return (food_x, food_y, robo_theta, msg.distance)    
 
     def food_callback(self, data):
         ######### YOUR CODE HERE ############
@@ -148,7 +155,7 @@ class FoodMarkerPublisher():
                 #header=Header(frame_id='base_footprint', stamp=rospy.Time(0)),
                 #color=ColorRGBA(0.0, 1.0, 0.0, 0.8),
                 #scale=(5,5,5))
-                markerArray.append(circle)
+                markerArray.markers.append(circle)
 
             self.marker_pub.publish(markerArray)
 
@@ -156,6 +163,7 @@ class FoodMarkerPublisher():
 
 if __name__ == '__main__':
     m = FoodMarkerPublisher()
-    rospy.spin()
     # print "running target marker"
     # m.run()
+    rospy.spin()
+
