@@ -87,7 +87,7 @@ class FoodMarkerPublisher():
         print(self.robot_pose())
         food_x = robo_x + dist * np.cos(robo_theta)
         food_y = robo_y + dist * np.sin(robo_theta)
-        return (food_x, food_y, robo_theta)
+        return (food_x, food_y, robo_theta, msg.distance)
         
 
     def food_callback(self, data):
@@ -95,9 +95,16 @@ class FoodMarkerPublisher():
         # make list of whitelisted (aka 'fun' objects) 
         inds = []
         for i,obj in enumerate(data.objects):
-            if obj in self.fun_stuff and data.ob_msgs[i].distance < MAX_DETECT_DIST:
-                self.food_dict[obj] = self.food_to_world_frame(data.ob_msgs[i])
-                print(obj, " added to keys")
+            if obj in self.fun_stuff:
+                if obj in self.food_dict:
+                    lastDist = food_dict[obj][-1] 
+                    curDist = data.ob_msgs[i].distance
+                    if curDist < lastDist:
+                        self.food_dict[obj] = self.food_to_world_frame(data.ob_msgs[i])
+                        print(obj, " updated in keys")
+                else:
+                    self.food_dict[obj] = self.food_to_world_frame(data.ob_msgs[i])
+                    print(obj, " added to keys")
 
                 #self.object_list.append(obj)
                 #inds.append(i)
