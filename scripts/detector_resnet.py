@@ -22,6 +22,9 @@ USE_TF = True
 # minimum score for positive detection
 MIN_SCORE = .5
 
+# Only detect objects that are IN FRONT of the robot
+THETA_DET_MAX = 0.25
+
 def load_object_labels(filename):
     """ loads the coco object readable name """
 
@@ -247,8 +250,11 @@ class Detector:
                 dist = self.estimate_distance(thetaleft,thetaright,img_laser_ranges)
 
                 if not self.object_publishers.has_key(cl):
-                    self.object_publishers[cl] = rospy.Publisher('/detector/'+self.object_labels[cl],
-                        DetectedObject, queue_size=10)
+
+                    # only detect objects in front
+                    if abs(thetaleft) < THETA_DET_MAX and abs(thetaright) < THETA_DET_MAX:
+                        self.object_publishers[cl] = rospy.Publisher('/detector/'+self.object_labels[cl],
+                                DetectedObject, queue_size=10)
 
                 # publishes the detected object and its location
                 object_msg = DetectedObject()

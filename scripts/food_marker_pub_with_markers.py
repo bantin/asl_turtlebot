@@ -8,7 +8,6 @@ from geometry_msgs.msg import Twist, PoseArray, Pose2D
 from asl_turtlebot.msg import DetectedObject, DetectedObjectList
 import tf
 import numpy as np
-from utils import wrapToPi
 
 # max distance to detect fun_stuff object
 MAX_DETECT_DIST = 1
@@ -83,19 +82,11 @@ class FoodMarkerPublisher():
             
     
     def food_to_world_frame(self, msg):
-        theta_left = msg.thetaleft
-        theta_right = msg.thetaright
-        theta_avg = np.mean((theta_left, theta_right))
-        theta_avg_wrapped = wrapToPi(theta_avg)
-
-        dist = msg.distance
+        dist = np.max(msg.distance - 0.1, 0)
         robo_x, robo_y, robo_theta = self.robot_pose()
-        food_x = robo_x + dist * np.cos(robo_theta + theta_avg_wrapped)
-        food_y = robo_y + dist * np.sin(robo_theta + theta_avg_wrapped)
-
-        rospy.loginfo("Theta_avg_wrapped (should be close to zero)")
-        rospy.loginfo(theta_avg_wrapped)
-
+        print(self.robot_pose())
+        food_x = robo_x + dist * np.cos(robo_theta)
+        food_y = robo_y + dist * np.sin(robo_theta)
         return (food_x, food_y, robo_theta)
         
 
@@ -120,7 +111,7 @@ class FoodMarkerPublisher():
         markerArray = MarkerArray()
 
         while not rospy.is_shutdown():
-            for i, food in enumerate(self.food_dict.keys()):
+            for food in self.food_dict.keys():
 	        circle = Marker()
 	        circle.header.frame_id = "map"
 	        circle.header.stamp = rospy.Time.now()
@@ -140,7 +131,7 @@ class FoodMarkerPublisher():
 	        circle.color.r = 0.0
 	        circle.color.g = 0.0
 	        circle.color.b = 1.0
-	        circle.id = i
+	        circle.id = food
                 #marker = Marker(
                 #type=Marker.SPHERE,
                 #id=0,
@@ -149,7 +140,7 @@ class FoodMarkerPublisher():
                 #header=Header(frame_id='base_footprint', stamp=rospy.Time(0)),
                 #color=ColorRGBA(0.0, 1.0, 0.0, 0.8),
                 #scale=(5,5,5))
-                markerArray.markers.append(circle)
+                markerArray.append(circle)
 
             self.marker_pub.publish(markerArray)
 
