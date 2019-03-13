@@ -162,17 +162,19 @@ class DetOccupancyGrid2D(object):
         self.width = width
         self.height = height
         self.obstacles = obstacles
+        self.OBJ_BUFFER = 0.1
 
     def is_free(self, x):
         for obs in self.obstacles:
             inside = True
             for dim in range(len(x)):
-                if x[dim] < obs[0][dim] or x[dim] > obs[1][dim]:
+                if x[dim]  + self.OBJ_BUFFER < obs[0][dim] or x[dim] - self.OBJ_BUFFER > obs[1][dim]:
                     inside = False
                     break
             if inside:
                 return False
         return True
+        #free if inside = False
 
     def plot(self, fig_num=0):
         fig = plt.figure(fig_num)
