@@ -169,7 +169,6 @@ class Supervisor:
         nav_g_msg.x = self.x_g
         nav_g_msg.y = self.y_g
         nav_g_msg.theta = self.theta_g
-        print(nav_g_msg)
         self.nav_goal_publisher.publish(nav_g_msg)
 
     def go_to_food_pose(self):
