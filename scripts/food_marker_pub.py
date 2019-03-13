@@ -21,6 +21,7 @@ class FoodMarkerPublisher():
                                              
         self.food_goal_pub = rospy.Publisher('/food_pose', Pose2D, queue_size=10) 
         self.go_home_pub = rospy.Publisher('/home', String, queue_size = 10)
+        self.marker_pub = rospy.Publisher('/seen_food_markers', MarkerArray, queue_size=10)
 
         # for viz
         #self.pub = rospy.Publisher('/food_marker', MarkerArray, queue_size=10)
@@ -106,25 +107,18 @@ class FoodMarkerPublisher():
         ######### END OF YOUR CODE ##########
 
     def run(self):
-        x, y, theta = self.robot_pose()
-        #markerArray = MarkerArray()
+        #x, y, theta = self.robot_pose()
+        markerArray = MarkerArray()
 
         while not rospy.is_shutdown():
-            self.loop()
-            rate.sleep()
-
-            """
-            for msg in self.msg_list:
-                print(msg)
-                rospy.loginfo(msg)
+            for i, food in enumerate(self.food_dict.keys()):
 	        circle = Marker()
 	        circle.header.frame_id = "map"
 	        circle.header.stamp = rospy.Time.now()
 	        circle.type = Marker.SPHERE
 	        circle.action = Marker.ADD
-	        circle.pose.position.x = msg.distance 
-
-	        circle.pose.position.y = self.y_g
+	        circle.pose.position.x = self.food_dict[food][0] 
+	        circle.pose.position.y = self.food_dict[food][1]
 	        circle.pose.position.z = 0.0
 	        circle.pose.orientation.x = 0;
 	        circle.pose.orientation.y = 0;
@@ -134,24 +128,26 @@ class FoodMarkerPublisher():
 	        circle.scale.y = 0.15
 	        circle.scale.z = 0.1
 	        circle.color.a = 1.0
-	        circle.color.r = 1.0
+	        circle.color.r = 0.0
 	        circle.color.g = 0.0
-	        circle.color.b = 0.0
-	        circle.id = msg.name
-            marker = Marker(
-            type=Marker.SPHERE,
-            id=0,
-            lifetime=rospy.Duration(20),
-            pose=Pose(Point(0.5, 0.5, 1.45), Quaternion(0, 0, 0, 1)),
-            header=Header(frame_id='base_footprint', stamp=rospy.Time(0)),
-            color=ColorRGBA(0.0, 1.0, 0.0, 0.8),
-            scale=(5,5,5))
-            self.pub.publish(markerArray)
+	        circle.color.b = 1.0
+	        circle.id = i
+                #marker = Marker(
+                #type=Marker.SPHERE,
+                #id=0,
+                #lifetime=rospy.Duration(20),
+                #pose=Pose(Point(0.5, 0.5, 1.45), Quaternion(0, 0, 0, 1)),
+                #header=Header(frame_id='base_footprint', stamp=rospy.Time(0)),
+                #color=ColorRGBA(0.0, 1.0, 0.0, 0.8),
+                #scale=(5,5,5))
+                markerArray.markers.append(circle)
+
+            self.marker_pub.publish(markerArray)
+
    	    rospy.sleep(0.01)
-            """
 
 if __name__ == '__main__':
     m = FoodMarkerPublisher()
-    rospy.spin()
+    #rospy.spin()
     print "running target marker"
-    #m.run()
+    m.run()
