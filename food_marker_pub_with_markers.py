@@ -33,7 +33,7 @@ class FoodMarkerPublisher():
         self.food_dict = {} 
 
         # Testing 
-        self.fun_stuff = ['laptop', 'banana', 'apple', 'orange', 'stop sign', 'bottle']
+        self.fun_stuff = ['laptop','hot dog', 'banana', 'apple', 'orange', 'stop sign', 'bottle']
 
         #self.object_list = []
         self.msg_list = []
