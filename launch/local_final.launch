@@ -4,7 +4,8 @@
     <rosparam param="use_tf">true</rosparam>
     <rosparam param="rviz">true</rosparam>
 
-    <node pkg="asl_turtlebot" type="supervisor_nav.py" name="turtlebot_supervisor" output="screen"/>
+    <!-- <node pkg="asl_turtlebot" type="food_marker_pub.py" name="food_publisher" /> -->
+    <!-- <node pkg="asl_turtlebot" type="supervisor_nav.py" name="turtlebot_supervisor" output="screen"/> -->
     <node pkg="asl_turtlebot" type="pose_controller_nav.py" name="turtlebot_pose_controller" />
     <node pkg="asl_turtlebot" type="navigator.py" name="turtlebot_navigator" />
     <node pkg="asl_turtlebot" type="marker_publisher.py" name="marker_publisher" /> 
