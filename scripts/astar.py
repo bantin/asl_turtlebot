@@ -6,6 +6,7 @@ import matplotlib.patches as patches
 class AStar(object):
 
     def __init__(self, statespace_lo, statespace_hi, x_init, x_goal, occupancy, resolution=1):
+        self.GOAL_RADIUS = 0.1
         self.statespace_lo = statespace_lo         # state space lower bound (e.g., (-5, -5))
         self.statespace_hi = statespace_hi         # state space upper bound (e.g., (5, 5))
         self.occupancy = occupancy                 # occupancy grid
@@ -133,7 +134,8 @@ class AStar(object):
         while len(self.open_set)>0:
             # TODO: fill me in!
             x_cur = self.find_best_f_score()
-            if x_cur == self.x_goal:
+            if self.is_free(self.snap_to_grid(x_cur)) and self.distance(self.x_goal[:2], x_cur[:2]) < self.GOAL_RADIUS:
+                self.x_goal = self.snap_to_grid(x_cur)
                 self.path = self.reconstruct_path()
                 return True
             
