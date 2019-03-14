@@ -73,7 +73,7 @@ class Navigator:
         self.occupancy_updated = False
 
         # plan parameters
-        self.plan_resolution =  0.05
+        self.plan_resolution =  0.1
         self.plan_horizon = 15
 
         # variables for the controller
@@ -221,12 +221,10 @@ class Navigator:
 
         # if we have a path, execute it (we need at least 3 points for this controller)
         if len(self.current_plan) > 3:
-            rospy.loginfo("Navigator: Executing navigation plan")
+            rospy.loginfo("Executing plan")
 
             # if currently not moving, first line up with the plan
             if self.V_prev == 0:
-                rospy.loginfo("Navigator: First lining up with plan")
-
                 theta_init = np.arctan2(self.current_plan[1][1]-self.current_plan[0][1],self.current_plan[1][0]-self.current_plan[0][0])
                 theta_err = theta_init-self.theta
                 if abs(theta_err)>THETA_START_THRESH:
@@ -280,10 +278,10 @@ class Navigator:
             cmd_x_dot = np.sign(V)*min(V_MAX, np.abs(V))
             cmd_theta_dot = np.sign(om)*min(W_MAX, np.abs(om))
         elif len(self.current_plan) > 0:
-            rospy.loginfo("Navigator: Close to pose using controller")
-
             # using the pose controller for paths too short
             # just send the next point
+            rospy.loginfo("Using pose controller")
+
             pose_g_msg = Pose2D()
             pose_g_msg.x = self.current_plan[0][0]
             pose_g_msg.y = self.current_plan[0][1]
@@ -295,6 +293,7 @@ class Navigator:
             return
         else:
             # just stop
+            rospy.loginfo("Stopped because could not find path")
             cmd_x_dot = 0
             cmd_theta_dot = 0
 

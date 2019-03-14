@@ -21,7 +21,7 @@ mapping = rospy.get_param("map")
 POS_EPS = .1
 THETA_EPS = .5
 
-FOOD_EPS = 0.2
+FOOD_EPS = 0.05
 
 # time to stop at a stop sign
 STOP_TIME = 10
@@ -121,6 +121,7 @@ class Supervisor:
         origin_frame = "/map" if mapping else "/odom"
         print("rviz command received!")
         try:
+            # self.trans_listener.waitForTransform(origin_frame, "/base_footprint", rospy.Time(), rospy.Duration(4.0))
             nav_pose_origin = self.trans_listener.transformPose(origin_frame, msg)
             self.x_g = nav_pose_origin.pose.position.x
             self.y_g = nav_pose_origin.pose.position.y
@@ -132,7 +133,9 @@ class Supervisor:
             euler = tf.transformations.euler_from_quaternion(quaternion)
             self.theta_g = euler[2]
             self.mode = Mode.NAV
-        except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+        except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException) as e:
+            print("TF Exception")
+            print(e)
             pass
 
     def nav_pose_callback(self, msg):
