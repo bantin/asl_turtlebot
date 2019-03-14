@@ -21,7 +21,7 @@ mapping = rospy.get_param("map")
 POS_EPS = .1
 THETA_EPS = .5
 
-FOOD_EPS = 0.2
+FOOD_EPS = 0.05
 
 # time to stop at a stop sign
 STOP_TIME = 10

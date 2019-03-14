@@ -11,7 +11,7 @@ import numpy as np
 from utils import wrapToPi
 
 # max distance to detect fun_stuff object
-MAX_DETECT_DIST = 1
+MAX_DETECT_DIST = 0.5
 
 
 class FoodMarkerPublisher():
@@ -34,7 +34,7 @@ class FoodMarkerPublisher():
         self.food_dict = {} 
 
         # Testing 
-        self.fun_stuff = ['laptop','hot dog', 'banana', 'apple', 'orange', 'stop sign', 'bottle']
+        self.fun_stuff = ['hot dog', 'banana', 'apple', 'orange', 'stop sign', 'bottle']
 
         #self.object_list = []
         self.msg_list = []
@@ -83,18 +83,18 @@ class FoodMarkerPublisher():
             self.go_home_pub.publish("Time to go home")
             
     def food_to_world_frame(self, msg):
-        theta_left = msg.thetaleft
-        theta_right = msg.thetaright
-        theta_avg = np.mean((theta_left, theta_right))
-        theta_avg_wrapped = wrapToPi(theta_avg)
+        # theta_left = msg.thetaleft
+        # theta_right = msg.thetaright
+        # theta_avg = np.mean((theta_left, theta_right))
+        # theta_avg_wrapped = wrapToPi(theta_avg)
 
-        dist = np.max(msg.distance - 0.1, 0)
+        # dist = np.max(msg.distance - 0.1, 0)
         robo_x, robo_y, robo_theta = self.robot_pose()
-        food_x = robo_x + dist * np.cos(robo_theta + theta_avg_wrapped)
-        food_y = robo_y + dist * np.sin(robo_theta + theta_avg_wrapped)
-
-        rospy.loginfo("Theta_avg_wrapped (should be close to zero)")
-        rospy.loginfo(theta_avg_wrapped)
+        # food_x = robo_x + dist * np.cos(robo_theta + theta_avg_wrapped)
+        # food_y = robo_y + dist * np.sin(robo_theta + theta_avg_wrapped)
+        food_x, food_y = robo_x, robo_y
+        # rospy.loginfo("Theta_avg_wrapped (should be close to zero)")
+        # rospy.loginfo(theta_avg_wrapped)
 
         return (food_x, food_y, robo_theta, msg.distance)    
 
@@ -103,7 +103,7 @@ class FoodMarkerPublisher():
         # make list of whitelisted (aka 'fun' objects) 
         inds = []
         for i,obj in enumerate(data.objects):
-            if obj in self.fun_stuff:
+            if obj in self.fun_stuff and data.ob_msgs[i].distance < MAX_DETECT_DIST:
                 if obj in self.food_dict:
                     lastDist = self.food_dict[obj][-1] 
                     curDist = data.ob_msgs[i].distance
